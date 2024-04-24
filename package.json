@@ -73,6 +73,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@netlify/functions": "^2.6.0",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.2.0",
     "compression": "^1.7.4",
@@ -95,6 +96,7 @@
     "node-mocks-http": "^1.12.2",
     "pino": "^8.14.2",
     "pino-pretty": "^10.2.0",
+    "serverless-http": "^3.2.0",
     "tslib": "^2.6.1",
     "winston": "^3.10.0"
   }

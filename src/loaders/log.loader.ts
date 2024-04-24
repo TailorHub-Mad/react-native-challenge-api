@@ -34,21 +34,21 @@ const format = winston.format.combine(
 	winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
 );
 // Le indicamos que acciones queremos hacer, en este caso los logs y el guardado de estos si es un error solo se generará en el archivo error.log y para todos en otro que se llame all.log
-const transports = [
-	new winston.transports.Console(),
-	new winston.transports.File({
-		filename: 'logs/error.log',
-		level: 'error'
-	}),
-	new winston.transports.File({ filename: 'logs/all.log' })
-];
+// const transports = [
+// 	new winston.transports.Console(),
+// 	new winston.transports.File({
+// 		filename: 'logs/error.log',
+// 		level: 'error'
+// 	}),
+// 	new winston.transports.File({ filename: 'logs/all.log' })
+// ];
 
 // Ejecutamos winston
 const logger = winston.createLogger({
 	level: level(),
 	levels,
-	format,
-	transports
+	format
+	// transports
 });
 
 // Lo añadimos en global para poder utilizarlo en toda la aplicación sin tener que importarlo.

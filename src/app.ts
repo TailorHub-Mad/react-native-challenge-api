@@ -13,7 +13,7 @@ import { MongoConnection } from './loaders/db.loader';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
 
-const app = express();
+export const app = express();
 
 app.use(
 	cors({
