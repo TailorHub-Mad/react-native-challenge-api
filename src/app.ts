@@ -17,8 +17,21 @@ export const app = express();
 
 app.use(
 	cors({
-		origin: true,
-		credentials: true
+		origin: function (origin, callback) {
+			const allowedOrigins = [
+				'http://localhost:3000', // Asegúrate de cambiar este puerto al que usas localmente
+				'https://3ba4cd18-d338-43bf-a9ca-51615da16334-00-1q63gwf79pesk.kirk.replit.dev'
+			];
+
+			if ((origin && allowedOrigins.indexOf(origin) !== -1) || !origin) {
+				callback(null, true);
+			} else {
+				callback(new Error('CORS not allowed'));
+			}
+		},
+		credentials: true,
+		exposedHeaders: ['Authorization'],
+		optionsSuccessStatus: 200
 	})
 );
 
