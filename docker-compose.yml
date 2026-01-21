@@ -1,0 +1,22 @@
+services:
+  api:
+    build: .
+    environment:
+      PORT: 3001
+      NODE_ENV: development
+      DATABASE_URL: mongodb://mongo:27017/technical_review
+      SECRET_KEY: change-me
+      CORS_ORIGINS: http://localhost:3000,http://localhost:8081
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

@@ -1,180 +1,130 @@
-# API Documentation
+# Technical Review API
 
-This API provides endpoints for managing restaurants and user authentication. All API routes are prefixed with `/api`.
+API para el challenge de React Native de restaurantes. Provee autenticación, gestión de restaurantes, comentarios y favoritos con MongoDB.
 
-The base url is:
-https://technical-review-api-tailor.netlify.app/
+## ✅ Objetivos del repositorio
 
-## Authentication Routes
+- API estable y desplegable en AWS (ECS/EC2/Elastic Beanstalk) con MongoDB externo.
+- Configuración clara para entorno local y producción.
+- Endpoints documentados y consistentes.
 
-Base path: `/api/auth`
+## Requisitos
 
-### 1. Sign Up
-- **Endpoint**: `POST /auth/signup`
-- **Description**: Register a new user
-- **Body**:
-  ```typescript
-  {
-    email: string,
-    password: string,
-    name: string
-  }
-  ```
-- **Response**: Status 201 if successful
+- Node.js 18+
+- Yarn
+- MongoDB (local, Atlas o DocumentDB)
 
-### 2. Login
-- **Endpoint**: `POST /auth/login`
-- **Description**: Authenticate user and get tokens
-- **Body**:
-  ```typescript
-  {
-    email: string,
-    password: string
-  }
-  ```
-- **Response**: 
-  - Headers: `Authorization` token
-  - Cookies: `refreshToken` (httpOnly)
-  - Body: User information
+## Configuración rápida (local)
 
-### 3. Refresh Token
-- **Endpoint**: `GET /auth/refresh-token`
-- **Description**: Get new access token using refresh token
-- **Cookies Required**: `refreshToken`
-- **Response**: 
-  - Status: 202
-  - Headers: New `Authorization` token
-  - Cookies: New `refreshToken`
+1. Instala dependencias:
 
-### 4. Logout
-- **Endpoint**: `GET /auth/logout`
-- **Description**: Invalidate current tokens
-- **Authentication**: Required
-- **Response**: Status 202
-
-### 5. Verify Token
-- **Endpoint**: `GET /auth/verify`
-- **Description**: Verify current authentication token
-- **Authentication**: Required
-- **Response**: User information
-
-## Restaurant Routes
-
-Base path: `/api/restaurant`
-
-### 1. List Restaurants
-- **Endpoint**: `GET /restaurant/list`
-- **Description**: Get paginated list of restaurants
-- **Query Parameters**:
-  ```typescript
-  {
-    limit: number,
-    page: number
-  }
-  ```
-- **Response**: 
-  ```typescript
-  {
-    restaurantList: Restaurant[],
-    total: number
-  }
-  ```
-
-### 2. Get Restaurant Details
-- **Endpoint**: `GET /restaurant/detail/:id`
-- **Description**: Get detailed information about a specific restaurant
-- **Parameters**: 
-  - `id`: Restaurant ID
-- **Response**: Restaurant details with average rating
-
-### 3. Create Restaurant
-- **Endpoint**: `POST /restaurant/create`
-- **Description**: Create a new restaurant
-- **Authentication**: Required
-- **Body**: Multipart form data
-  - `image`: Restaurant image file
-  - Other restaurant details
-- **Response**: Status 201 if successful
-
-### 4. Update Restaurant
-- **Endpoint**: `PUT /restaurant/:id`
-- **Description**: Update restaurant information
-- **Authentication**: Required (must be owner)
-- **Parameters**: 
-  - `id`: Restaurant ID
-- **Body**: Multipart form data (similar to create)
-- **Response**: Status 202 if successful
-
-### 5. Delete Restaurant
-- **Endpoint**: `DELETE /restaurant/:id`
-- **Description**: Delete a restaurant
-- **Authentication**: Required (must be owner)
-- **Parameters**: 
-  - `id`: Restaurant ID
-- **Response**: Status 202 if successful
-
-### Comment Routes
-
-### 1. Create Comment
-- **Endpoint**: `POST /restaurant/:id/comment`
-- **Description**: Add a comment to a restaurant
-- **Authentication**: Required
-- **Parameters**: 
-  - `id`: Restaurant ID
-- **Response**: Status 201 if successful
-
-### 2. Update Comment
-- **Endpoint**: `PUT /restaurant/:id/comment/:commentId`
-- **Description**: Update an existing comment
-- **Authentication**: Required (must be comment owner)
-- **Parameters**: 
-  - `id`: Restaurant ID
-  - `commentId`: Comment ID
-- **Response**: Status 202 if successful
-
-### 3. Delete Comment
-- **Endpoint**: `DELETE /restaurant/:id/comment/:commentId`
-- **Description**: Delete a comment
-- **Authentication**: Required (must be comment owner)
-- **Parameters**: 
-  - `id`: Restaurant ID
-  - `commentId`: Comment ID
-- **Response**: Status 202 if successful
-
-## Health Check
-
-Base path: `/api/health`
-
-### 1. Health Status
-- **Endpoint**: `GET /health`
-- **Description**: Check API health status
-- **Response**: 
-  ```typescript
-  {
-    name: string,
-    version: string,
-    mongodb: {
-      status: string
-    }
-  }
-  ```
-
-## Authentication
-
-Protected routes require a valid JWT token in the `Authorization` header. The token can be obtained through the login endpoint or refreshed using the refresh token endpoint.
-
-## Error Handling
-
-All endpoints follow a consistent error response format:
-```typescript
-{
-  message: string,
-  statusCode: number
-}
+```bash
+yarn install
 ```
+
+2. Crea un archivo `.env` con la configuración necesaria:
+
+```bash
+cp .env.example .env
+```
+
+3. Arranca el servidor en modo desarrollo:
+
+```bash
+yarn dev
+```
+
+La API estará disponible en `http://localhost:3001/api`.
+
+## Variables de entorno
+
+| Variable | Descripción |
+| --- | --- |
+| `PORT` | Puerto de la API (por defecto 3001). |
+| `NODE_ENV` | `development` o `production`. |
+| `DATABASE_URL` | URI de MongoDB (recomendado). |
+| `SECRET_KEY` | Clave para firmar los JWT. |
+| `CLOUDINARY_CLOUD_NAME` | Credenciales de Cloudinary (opcional). |
+| `CLOUDINARY_API_KEY` | Credenciales de Cloudinary (opcional). |
+| `CLOUDINARY_API_SECRET` | Credenciales de Cloudinary (opcional). |
+| `UPLOAD_DIR` | Carpeta local para imágenes si no hay Cloudinary. |
+| `CORS_ORIGINS` | Lista separada por comas de orígenes permitidos (ej. `http://localhost:3000`). Usa `*` para permitir todos. |
+
+> Si no hay credenciales de Cloudinary, los uploads se guardan en disco dentro de `UPLOAD_DIR`.
+
+## Docker (API + MongoDB)
+
+```bash
+docker compose up --build
+```
+
+La API quedará en `http://localhost:3001/api` y MongoDB en `mongodb://localhost:27017/technical_review`.
+
+## Build y ejecución en producción
+
+```bash
+yarn build
+yarn start
+```
+
+## Despliegue recomendado en AWS
+
+### Opción 1: ECS Fargate + MongoDB Atlas
+
+1. Crea un cluster en MongoDB Atlas (o AWS DocumentDB) y obtén la URI.
+2. Construye y publica la imagen Docker en ECR.
+3. Crea un servicio en ECS Fargate usando esa imagen.
+4. Configura las variables de entorno en el task definition:
+   - `DATABASE_URL`
+   - `SECRET_KEY`
+   - `CORS_ORIGINS`
+   - `CLOUDINARY_*` (si aplica)
+
+### Opción 2: EC2 + Docker
+
+1. Lanza una instancia EC2.
+2. Instala Docker y Docker Compose.
+3. Copia el repositorio y ejecuta:
+
+```bash
+docker compose up -d --build
+```
+
+## Endpoints
+
+Todos los endpoints están bajo el prefijo `/api`.
+
+### Auth
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `GET /api/auth/refresh-token`
+- `GET /api/auth/logout`
+- `GET /api/auth/verify`
+
+### Restaurantes
+- `GET /api/restaurant/list`
+- `GET /api/restaurant/detail/:id`
+- `POST /api/restaurant/create` (multipart)
+- `PUT /api/restaurant/:id` (multipart)
+- `DELETE /api/restaurant/:id`
+
+### Comentarios
+- `POST /api/restaurant/:id/comment`
+- `PUT /api/restaurant/:id/comment/:commentId`
+- `DELETE /api/restaurant/:id/comment/:commentId`
+
+### Health Check
+- `GET /api/health`
 
 ## CORS
 
-The API supports CORS for the following origins:
-- `http://localhost:3000`
-- `https://3ba4cd18-d338-43bf-a9ca-51615da16334-00-1q63gwf79pesk.kirk.replit.dev` 
+Configura los orígenes permitidos con `CORS_ORIGINS` (separados por comas). Para permitir todos los orígenes, usa `*`.
+
+## Notas para el challenge mobile
+
+- Los tokens JWT se devuelven en el header `Authorization`.
+- El refresh token se devuelve en una cookie httpOnly.
+
+---
+
+Si quieres ampliar la API (por ejemplo, favoritos o perfiles más completos), se recomienda añadir pruebas y un esquema de migraciones para MongoDB.
