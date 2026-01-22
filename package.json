@@ -5,11 +5,11 @@
   "main": "src/app.ts",
   "scripts": {
     "test:coverage": "ENV_FILE=.env.test jest --config config/jest.json --collectCoverage",
-    "start": "NODE_ENV=production node -r module-alias/register dist/app.js",
+    "start": "NODE_ENV=production node -r module-alias/register dist/server.js",
     "dev": "NODE_ENV=development nodemon",
     "dev:prod": "NODE_ENV=production nodemon",
     "build": "rm -rf dist && npx tsc --build tsconfig.prod.json",
-    "serve": "yarn run build && NODE_ENV=production node -r module-alias/register dist/app.js",
+    "serve": "yarn run build && NODE_ENV=production node -r module-alias/register dist/server.js",
     "seeds:dev": "NODE_ENV=development ts-node -r tsconfig-paths/register --files ./src/bin/restaurant.seed.ts --env=development",
     "seeds:prod": "NODE_ENV=production ts-node -r tsconfig-paths/register --files ./src/seeds --env=production",
     "prettier": "prettier  --config .prettierrc --write src/**/*.ts",
@@ -73,7 +73,6 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@netlify/functions": "^2.6.0",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.2.0",
     "compression": "^1.7.4",
@@ -96,7 +95,6 @@
     "node-mocks-http": "^1.12.2",
     "pino": "^8.14.2",
     "pino-pretty": "^10.2.0",
-    "serverless-http": "^3.2.0",
     "tslib": "^2.6.1",
     "winston": "^3.10.0"
   }

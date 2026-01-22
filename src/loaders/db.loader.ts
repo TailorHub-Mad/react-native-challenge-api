@@ -15,8 +15,13 @@ const options = {
 
 export namespace MongoConnection {
 	let _mongoServer: MongoMemoryServer;
+	let _listenersAttached = false;
 	export const open = async (): Promise<void> => {
 		try {
+			if (mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2) {
+				return;
+			}
+
 			if (DATABASEURL === 'inmemory') {
 				logger.debug('connecting to inmemory mongo db');
 				_mongoServer = new MongoMemoryServer();
@@ -28,22 +33,26 @@ export namespace MongoConnection {
 				await mongoose.connect(DATABASEURL, options);
 			}
 
-			mongoose.connection.on('connected', () => {
-				logger.info('Mongo: connected');
-			});
+			if (!_listenersAttached) {
+				mongoose.connection.on('connected', () => {
+					logger.info('Mongo: connected');
+				});
 
-			mongoose.connection.on('disconnected', () => {
-				logger.error('Mongo: disconnected');
-			});
+				mongoose.connection.on('disconnected', () => {
+					logger.error('Mongo: disconnected');
+				});
 
-			mongoose.connection.on('error', (err) => {
-				logger.error(`Mongo:  ${String(err)}`);
-				if (err.name === 'MongoNetworkError') {
-					setTimeout(function () {
-						mongoose.connect(DATABASEURL, options).catch(logger.error);
-					}, 5000);
-				}
-			});
+				mongoose.connection.on('error', (err) => {
+					logger.error(`Mongo:  ${String(err)}`);
+					if (err.name === 'MongoNetworkError') {
+						setTimeout(function () {
+							mongoose.connect(DATABASEURL, options).catch(logger.error);
+						}, 5000);
+					}
+				});
+
+				_listenersAttached = true;
+			}
 		} catch (err) {
 			logger.error(`db.open: ${err}`);
 			throw err;

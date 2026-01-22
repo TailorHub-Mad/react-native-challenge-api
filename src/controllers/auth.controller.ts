@@ -3,6 +3,7 @@ import validationAuth from '../validations/auth.validation';
 import authService from '../services/auth.service';
 import { findBlackListToken } from '../repository/blacklist.repository';
 import { randmonTimeOutControl, randomErrorControl } from '../utils/response.util';
+import { authCookieOptions } from '../utils/cookie.util';
 
 export const Login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -14,11 +15,7 @@ export const Login = async (req: Request, res: Response, next: NextFunction) => 
 
 		res
 			.header('Authorization', token)
-			.cookie('refreshToken', refreshToken, {
-				httpOnly: true,
-				sameSite: 'none',
-				secure: true
-			})
+			.cookie('refreshToken', refreshToken, authCookieOptions())
 			.json(user);
 	} catch (error) {
 		next(error);
@@ -52,11 +49,7 @@ export const RefreshToken = async (req: Request, res: Response, next: NextFuncti
 
 		res
 			.header('Authorization', token)
-			.cookie('refreshToken', newRefreshToken, {
-				httpOnly: true,
-				sameSite: 'none',
-				secure: true
-			})
+			.cookie('refreshToken', newRefreshToken, authCookieOptions())
 			.sendStatus(202);
 	} catch (error) {
 		next(error);
@@ -73,11 +66,7 @@ export const Logout = async (req: Request, res: Response, next: NextFunction) =>
 		await authService.logout(refreshToken, authorization);
 		await randmonTimeOutControl();
 		res
-			.cookie('refreshToken', '', {
-				httpOnly: true,
-				sameSite: 'none',
-				secure: true
-			})
+			.cookie('refreshToken', '', authCookieOptions())
 			.sendStatus(202);
 	} catch (error) {
 		next(error);
