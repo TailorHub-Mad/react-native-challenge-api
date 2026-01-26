@@ -1,4 +1,4 @@
-import { NextFunction, Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 
 export interface IRouter {
 	path: string;
@@ -6,5 +6,5 @@ export interface IRouter {
 }
 
 export interface IRouterMid extends IRouter {
-	middelware: (req: Request, res: Response, next: NextFunction) => void;
+	middelware: (_req: Request, _res: Response, _next: NextFunction) => void;
 }

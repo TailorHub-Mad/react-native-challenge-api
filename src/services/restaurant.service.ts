@@ -40,6 +40,10 @@ const listRestaurant = async (pagination: { limit: number; page: number }) => {
 const getRestaurant = async (restaurantId: string) => {
 	const restaurant = await getRestaurantById(restaurantId);
 
+	if (!restaurant) {
+		throw new BaseError('Restaurant not found', 404);
+	}
+
 	return restaurant;
 };
 
@@ -55,7 +59,16 @@ const updateComment = async (
 ) => {
 	const commentUpdate = await updateReview(userId, restaurantId, commentId, comment);
 
-	if (!commentUpdate) {
+	const matchedCount =
+		'matchedCount' in commentUpdate
+			? commentUpdate.matchedCount
+			: (commentUpdate as { n?: number }).n ?? 0;
+	const modifiedCount =
+		'modifiedCount' in commentUpdate
+			? commentUpdate.modifiedCount
+			: (commentUpdate as { nModified?: number }).nModified ?? 0;
+
+	if (matchedCount === 0 && modifiedCount === 0) {
 		throw new BaseError('Comment not found', 404);
 	}
 };

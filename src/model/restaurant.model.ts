@@ -9,10 +9,6 @@ const restaurantSchema = new Schema<IRestaurant>(
 			required: true,
 			unique: true
 		},
-		neighborhood: {
-			type: String,
-			trim: true
-		},
 		owner: {
 			type: Schema.Types.ObjectId,
 			ref: 'user',

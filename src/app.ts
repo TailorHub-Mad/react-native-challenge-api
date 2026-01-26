@@ -4,9 +4,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import * as loaders from './loaders';
-import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import { errorHandler } from './middleware/error.middleware';
+import swaggerUi from 'swagger-ui-express';
+import openApiSpec from './docs/openapi';
 
 export const app = express();
 
@@ -48,20 +49,21 @@ app.use((_req, res, next) => {
 	next();
 });
 
-app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(compression());
 app.use(express.json());
 // Ejecutamos la configuración de morgan para los logs en dev.
 app.use(loaders.morganMiddleware);
 
+// Expose OpenAPI spec and Swagger UI for API consumers.
+app.get('/api/docs.json', (_req, res) => res.json(openApiSpec));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, { explorer: true }));
+
 // Ruta necesario para Faable, siempre devolverá un estado 200.
 app.get('/', async (req, res) => {
 	console.log(req.body);
 	res.json({ status: `Process 200` });
 });
-// Cargamos todos los middlewares que se encuentren que exporte el archivo ./middleware/index.ts
-loaders.middlewares(app);
 // Configuramos el router con las rutas que exporte el archivo ./routes/index.ts
 loaders.router(app);
 // Controlamos cualquier error que ocurra de la aplicación que se envie por next.

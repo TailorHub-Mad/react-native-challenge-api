@@ -2,6 +2,9 @@
 	"rootDir": "../",
 	"testRegex": "\\.spec\\.ts$",
 	"testEnvironment": "node",
+	"setupFiles": [
+		"./config/jest.setup.ts"
+	],
 	"setupFilesAfterEnv": [
 		"./config/jest.config.ts"
 	],
@@ -21,13 +24,19 @@
 		"node_modules",
 		"src/app",
 		"src/@types",
-		"src/models"
+		"src/model"
 	],
 	"verbose": true,
 	"moduleNameMapper": {
 		"@utils/(.*)": "<rootDir>/src/utils/$1",
 		"@constants/(.*)": "<rootDir>/src/constants/$1",
 		"@log": "<rootDir>/src/loaders/log.loader",
-		"@errors/(.*)": "<rootDir>/src/errors/$1"
+		"@errors/(.*)": "<rootDir>/src/errors/$1",
+		"@models/(.*)": "<rootDir>/src/model/$1",
+		"@repositories/(.*)": "<rootDir>/src/repository/$1",
+		"@controllers/(.*)": "<rootDir>/src/controllers/$1",
+		"@interfaces/(.*)": "<rootDir>/src/interfaces/$1",
+		"@validations/(.*)": "<rootDir>/src/validations/$1",
+		"@enums/(.*)": "<rootDir>/src/enums/$1"
 	}
 }

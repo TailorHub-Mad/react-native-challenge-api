@@ -9,13 +9,21 @@ declare global {
 			DATABASE_NAME: string;
 			IV_LENGTH: string;
 			KEY: string;
+			AWS_REGION?: string;
+			AWS_DEFAULT_REGION?: string;
+			S3_BUCKET?: string;
+			S3_UPLOAD_PREFIX?: string;
+			S3_PUBLIC_BASE_URL?: string;
+			S3_URL_EXPIRATION_SECONDS?: string;
+			S3_MAX_UPLOAD_BYTES?: string;
+		}
+		interface Global {
+			logger: winston.Logger;
 		}
 	}
 
 	namespace Express {
 		interface Request {
-			// Falta por definir que guardar en el req.user
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			user: IReqUser;
 		}
 		namespace Multer {

@@ -1,22 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import validationAuth from '../validations/auth.validation';
 import authService from '../services/auth.service';
-import { findBlackListToken } from '../repository/blacklist.repository';
-import { randmonTimeOutControl, randomErrorControl } from '../utils/response.util';
-import { authCookieOptions } from '../utils/cookie.util';
+import { cleanBearerToken } from '../utils/jwt.util';
 
 export const Login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { email, password } = await validationAuth.login.body.validateAsync(req.body);
 
-		const { user, token, refreshToken } = await authService.login(email, password);
+		const { user, token } = await authService.login(email, password);
 
-		await randomErrorControl();
-
-		res
-			.header('Authorization', token)
-			.cookie('refreshToken', refreshToken, authCookieOptions())
-			.json(user);
+		res.header('Authorization', token).json({ user, token });
 	} catch (error) {
 		next(error);
 	}
@@ -34,40 +27,15 @@ export const SignUp = async (req: Request, res: Response, next: NextFunction) =>
 	}
 };
 
-export const RefreshToken = async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const validate = { refreshToken: req.cookies.refreshToken };
-		const { refreshToken } = await validationAuth.refreshToken.cookies.validateAsync(validate);
-
-		const isTokenBlackList = await findBlackListToken(refreshToken);
-
-		if (isTokenBlackList) {
-			throw new Error('Invalid token');
-		}
-
-		const { token, refreshToken: newRefreshToken } = await authService.refreshToken(refreshToken);
-
-		res
-			.header('Authorization', token)
-			.cookie('refreshToken', newRefreshToken, authCookieOptions())
-			.sendStatus(202);
-	} catch (error) {
-		next(error);
-	}
-};
-
 export const Logout = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { refreshToken } = await validationAuth.logout.cookies.validateAsync(req.cookies);
 		const { authorization } = await validationAuth.logout.headers.validateAsync({
 			authorization: req.headers.authorization
 		});
+		const token = cleanBearerToken(authorization);
 
-		await authService.logout(refreshToken, authorization);
-		await randmonTimeOutControl();
-		res
-			.cookie('refreshToken', '', authCookieOptions())
-			.sendStatus(202);
+		await authService.logout(token);
+		res.sendStatus(202);
 	} catch (error) {
 		next(error);
 	}
@@ -75,7 +43,7 @@ export const Logout = async (req: Request, res: Response, next: NextFunction) =>
 
 export const VerifyToken = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const user = await authService.verifyToken(req.headers.authorization as string);
+		const user = await authService.verifyToken(req.user._id);
 
 		res.json(user);
 	} catch (error) {
