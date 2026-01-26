@@ -3,6 +3,9 @@ dist
 .env
 .vscode
 yarn-error.log
+.pnp.cjs
+.pnp.loader.mjs
+.yarn
 logs
 coverage
 .DS_Store
