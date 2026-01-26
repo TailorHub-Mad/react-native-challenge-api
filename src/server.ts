@@ -5,7 +5,7 @@ import { app } from './app';
 import { PORT } from '@constants/env.constants';
 import * as loaders from './loaders';
 import { MongoConnection } from './loaders/db.loader';
-import packageJson from '../package.json';
+import { packageJson } from '@utils/packageJson.util';
 
 const processId = process.pid;
 
