@@ -1,180 +1,142 @@
-# API Documentation
+# React Native API Challenge - Backend
 
-This API provides endpoints for managing restaurants and user authentication. All API routes are prefixed with `/api`.
+API para el challenge de restaurantes (React Native). Backend mobile-first con JWT simple, MongoDB y uploads directos a S3 con URL presignada.
 
-The base url is:
-https://technical-review-api-tailor.netlify.app/
+## ✨ Features
 
-## Authentication Routes
+- Auth con JWT Bearer (sin refresh token ni cookies).
+- MongoDB con fallback local si no hay URL remota.
+- Uploads directos a S3 con presigned URL.
+- Swagger UI y OpenAPI JSON listos para consumo.
 
-Base path: `/api/auth`
+## 🚀 Quick Start
 
-### 1. Sign Up
-- **Endpoint**: `POST /auth/signup`
-- **Description**: Register a new user
-- **Body**:
-  ```typescript
-  {
-    email: string,
-    password: string,
-    name: string
-  }
-  ```
-- **Response**: Status 201 if successful
+```bash
+yarn install
+cp .env.example .env
+yarn dev
+```
 
-### 2. Login
-- **Endpoint**: `POST /auth/login`
-- **Description**: Authenticate user and get tokens
-- **Body**:
-  ```typescript
-  {
-    email: string,
-    password: string
-  }
-  ```
-- **Response**: 
-  - Headers: `Authorization` token
-  - Cookies: `refreshToken` (httpOnly)
-  - Body: User information
+API disponible en `http://localhost:3001/api`.
 
-### 3. Refresh Token
-- **Endpoint**: `GET /auth/refresh-token`
-- **Description**: Get new access token using refresh token
-- **Cookies Required**: `refreshToken`
-- **Response**: 
-  - Status: 202
-  - Headers: New `Authorization` token
-  - Cookies: New `refreshToken`
+## 🧰 Scripts
 
-### 4. Logout
-- **Endpoint**: `GET /auth/logout`
-- **Description**: Invalidate current tokens
-- **Authentication**: Required
-- **Response**: Status 202
+- `yarn dev`: desarrollo con nodemon.
+- `yarn build`: build TypeScript.
+- `yarn start`: run en produccion.
+- `yarn seed:challenge`: seed base de datos.
+- `yarn reset:challenge`: borra y re-seedea.
+- `yarn test:coverage`: tests y coverage.
 
-### 5. Verify Token
-- **Endpoint**: `GET /auth/verify`
-- **Description**: Verify current authentication token
-- **Authentication**: Required
-- **Response**: User information
+## 🔧 Variables de entorno
 
-## Restaurant Routes
+| Variable | Descripcion |
+| --- | --- |
+| `PORT` | Puerto de la API (default 3001). |
+| `NODE_ENV` | `development` o `production`. |
+| `DATABASE_URL` | URI MongoDB (remoto recomendado). |
+| `DATABASE_URL_FALLBACK` | URI local si no hay remoto. |
+| `SECRET_KEY` | Clave JWT. |
+| `AWS_REGION` | Region AWS (ej. `eu-west-3`). |
+| `S3_BUCKET` | Bucket para uploads. |
+| `S3_UPLOAD_PREFIX` | Prefijo de objetos (default `uploads`). |
+| `S3_PUBLIC_BASE_URL` | Base URL publica (opcional). |
+| `S3_URL_EXPIRATION_SECONDS` | Expiracion de URL presignada. |
+| `S3_MAX_UPLOAD_BYTES` | Tamano maximo permitido. |
+| `CORS_ORIGINS` | Origenes permitidos (comma separated). |
 
-Base path: `/api/restaurant`
+## 🔐 Auth (mobile)
 
-### 1. List Restaurants
-- **Endpoint**: `GET /restaurant/list`
-- **Description**: Get paginated list of restaurants
-- **Query Parameters**:
-  ```typescript
-  {
-    limit: number,
-    page: number
-  }
-  ```
-- **Response**: 
-  ```typescript
-  {
-    restaurantList: Restaurant[],
-    total: number
-  }
-  ```
+- Header: `Authorization: Bearer <token>`.
+- Logout invalida el token en servidor (blacklist).
+- `/auth/verify` valida el token actual.
 
-### 2. Get Restaurant Details
-- **Endpoint**: `GET /restaurant/detail/:id`
-- **Description**: Get detailed information about a specific restaurant
-- **Parameters**: 
-  - `id`: Restaurant ID
-- **Response**: Restaurant details with average rating
+## ☁️ Uploads (S3 presigned)
 
-### 3. Create Restaurant
-- **Endpoint**: `POST /restaurant/create`
-- **Description**: Create a new restaurant
-- **Authentication**: Required
-- **Body**: Multipart form data
-  - `image`: Restaurant image file
-  - Other restaurant details
-- **Response**: Status 201 if successful
+1. Solicita URL presignada en `POST /api/upload/presign`:
+   - `contentType` (`image/jpeg`, `image/png`, `image/webp`)
+   - `sizeBytes` (<= `S3_MAX_UPLOAD_BYTES`)
+2. Sube el archivo directo a S3 usando `uploadUrl`.
+3. Guarda `publicUrl` como `image` al crear/editar restaurante.
 
-### 4. Update Restaurant
-- **Endpoint**: `PUT /restaurant/:id`
-- **Description**: Update restaurant information
-- **Authentication**: Required (must be owner)
-- **Parameters**: 
-  - `id`: Restaurant ID
-- **Body**: Multipart form data (similar to create)
-- **Response**: Status 202 if successful
+Permisos IAM minimos (role de la API):
+- `s3:PutObject` en `arn:aws:s3:::<bucket>/<prefix>/*`
+- `s3:AbortMultipartUpload` (opcional)
 
-### 5. Delete Restaurant
-- **Endpoint**: `DELETE /restaurant/:id`
-- **Description**: Delete a restaurant
-- **Authentication**: Required (must be owner)
-- **Parameters**: 
-  - `id`: Restaurant ID
-- **Response**: Status 202 if successful
+Ejemplo de policy:
 
-### Comment Routes
-
-### 1. Create Comment
-- **Endpoint**: `POST /restaurant/:id/comment`
-- **Description**: Add a comment to a restaurant
-- **Authentication**: Required
-- **Parameters**: 
-  - `id`: Restaurant ID
-- **Response**: Status 201 if successful
-
-### 2. Update Comment
-- **Endpoint**: `PUT /restaurant/:id/comment/:commentId`
-- **Description**: Update an existing comment
-- **Authentication**: Required (must be comment owner)
-- **Parameters**: 
-  - `id`: Restaurant ID
-  - `commentId`: Comment ID
-- **Response**: Status 202 if successful
-
-### 3. Delete Comment
-- **Endpoint**: `DELETE /restaurant/:id/comment/:commentId`
-- **Description**: Delete a comment
-- **Authentication**: Required (must be comment owner)
-- **Parameters**: 
-  - `id`: Restaurant ID
-  - `commentId`: Comment ID
-- **Response**: Status 202 if successful
-
-## Health Check
-
-Base path: `/api/health`
-
-### 1. Health Status
-- **Endpoint**: `GET /health`
-- **Description**: Check API health status
-- **Response**: 
-  ```typescript
-  {
-    name: string,
-    version: string,
-    mongodb: {
-      status: string
-    }
-  }
-  ```
-
-## Authentication
-
-Protected routes require a valid JWT token in the `Authorization` header. The token can be obtained through the login endpoint or refreshed using the refresh token endpoint.
-
-## Error Handling
-
-All endpoints follow a consistent error response format:
-```typescript
+```json
 {
-  message: string,
-  statusCode: number
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:AbortMultipartUpload"],
+      "Resource": "arn:aws:s3:::react-native-api-challenge-uploads-eu-west-3/uploads/*"
+    }
+  ]
 }
 ```
 
-## CORS
+Si necesitas URLs publicas, agrega policy de lectura al bucket o un CloudFront delante y define `S3_PUBLIC_BASE_URL`.
 
-The API supports CORS for the following origins:
-- `http://localhost:3000`
-- `https://3ba4cd18-d338-43bf-a9ca-51615da16334-00-1q63gwf79pesk.kirk.replit.dev` 
+## 📚 API Docs (Swagger)
+
+- Swagger UI: `GET /api/docs`
+- OpenAPI JSON: `GET /api/docs.json`
+
+## 🗺️ Endpoints
+
+Base: `/api`.
+
+### Auth
+- `POST /auth/signup`
+- `POST /auth/login`
+- `POST /auth/logout`
+- `GET /auth/verify`
+
+### Uploads
+- `POST /upload/presign`
+
+### Restaurantes
+- `GET /restaurant/list`
+- `GET /restaurant/detail/:id`
+- `POST /restaurant/create`
+- `PUT /restaurant/:id`
+- `DELETE /restaurant/:id`
+
+### Comentarios
+- `POST /restaurant/:id/comment`
+- `PUT /restaurant/:id/comment/:commentId`
+- `DELETE /restaurant/:id/comment/:commentId`
+
+### Health
+- `GET /health`
+
+## 🐳 Docker
+
+```bash
+docker compose up --build
+```
+
+Si defines `DATABASE_URL` (por ejemplo Atlas), la API usa remoto; si no, usa `DATABASE_URL_FALLBACK`.
+
+## ☁️ Deploy (Amplify/ECS)
+
+- Usa IAM Role para S3 (sin keys en env). Si despliegas fuera de AWS, define
+  `AWS_ACCESS_KEY_ID` y `AWS_SECRET_ACCESS_KEY`.
+- En producción son obligatorias: `DATABASE_URL`, `SECRET_KEY`, `CORS_ORIGINS`,
+  `AWS_REGION`, `S3_BUCKET` (y opcionalmente `S3_PUBLIC_BASE_URL`).
+- Ajusta límites con `S3_URL_EXPIRATION_SECONDS` y `S3_MAX_UPLOAD_BYTES`.
+- El Dockerfile solo levanta la API.
+
+## 🌱 Seed
+
+- `yarn seed:challenge` crea usuario admin y 10 restaurantes.
+- `yarn reset:challenge` borra todo y re-seedea.
+
+## ✅ Smoke test local
+
+1. Levanta Mongo (docker o local) y define `DATABASE_URL`.
+2. Ejecuta `yarn reset:challenge`.
+3. Arranca la API con `yarn dev` y valida `GET /api/health`.

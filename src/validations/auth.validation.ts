@@ -14,15 +14,7 @@ export default {
 			password: Joi.string().required().max(128)
 		})
 	},
-	refreshToken: {
-		cookies: Joi.object().keys({
-			refreshToken: Joi.string().required()
-		})
-	},
 	logout: {
-		cookies: Joi.object().keys({
-			refreshToken: Joi.string().required()
-		}),
 		headers: Joi.object().keys({
 			authorization: Joi.string().required()
 		})

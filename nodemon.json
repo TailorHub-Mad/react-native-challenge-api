@@ -4,5 +4,5 @@
   "watch": ["src"],
   "ext": "js,json,ts",
   "ignore": [".git", "node_modules"],
-  "exec": "ts-node -r tsconfig-paths/register --files ./src/app.ts --env=development"
+  "exec": "ts-node -r tsconfig-paths/register --files ./src/server.ts --env=development"
 }

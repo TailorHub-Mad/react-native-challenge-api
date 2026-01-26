@@ -5,7 +5,6 @@ export const errorHandler = (
 	error: IError,
 	_req: Request,
 	res: Response,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_next: NextFunction
 ): void => {
 	try {
@@ -34,8 +33,8 @@ export const errorHandler = (
 		};
 
 		res.status(status).json(messageError);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	} catch (err: any) {
-		res.status(500).json({ message: err.message });
+	} catch (err) {
+		const message = err instanceof Error ? err.message : 'Something went wrong';
+		res.status(500).json({ message });
 	}
 };

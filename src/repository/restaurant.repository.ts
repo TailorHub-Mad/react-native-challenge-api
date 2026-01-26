@@ -1,9 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IComment, IRestaurant } from '@interfaces/models/restaurant.interface';
 import { RestaurantModel } from '../model/restaurant.model';
 import { Types } from 'mongoose';
 
-export const createRestaurantRepository = (userId: string, restaurant: any) => {
+type RestaurantLean = IRestaurant & { _id: Types.ObjectId };
+type RatingAggregation = { _id: Types.ObjectId; avgRating: number };
+
+export const createRestaurantRepository = (userId: string, restaurant: IRestaurant) => {
 	return RestaurantModel.create({ ...restaurant, owner: userId });
 };
 
@@ -24,30 +26,33 @@ export const getRestaurantById = async (restaurantId: string) => {
 		.populate('owner', 'name -_id')
 		.populate('reviews.owner', 'name -_id')
 		.select('-updatedAt')
-		.lean()
+		.lean<RestaurantLean>()
 		.exec();
-	const rating = RestaurantModel.aggregate([
+	const rating = RestaurantModel.aggregate<RatingAggregation>([
 		{ $match: { _id: new Types.ObjectId(restaurantId) } },
 		{ $unwind: '$reviews' },
 		{ $group: { _id: null, avgRating: { $avg: '$reviews.rating' } } }
 	]).exec();
 
-	return await Promise.all([restaurant, rating]).then(([restaurant, rating]) => {
-		return { ...restaurant, avgRating: rating[0]?.avgRating || 0 };
+	return await Promise.all([restaurant, rating]).then(([foundRestaurant, ratingRows]) => {
+		if (!foundRestaurant) {
+			return null;
+		}
+		return { ...foundRestaurant, avgRating: ratingRows[0]?.avgRating || 0 };
 	});
 };
 
 export const getRestaurantList = async (page: number, limit: number) => {
-	const restaurants = await RestaurantModel.find()
+	const restaurants = await RestaurantModel.find<RestaurantLean>()
 		.skip((page - 1) * limit)
 		.limit(limit)
 		.lean()
 		.exec();
 	const total = await RestaurantModel.countDocuments().exec();
-	const rating = await RestaurantModel.aggregate([
+	const rating = await RestaurantModel.aggregate<RatingAggregation>([
 		{
 			$match: {
-				_id: { $in: restaurants.map((restaurant: any) => restaurant._id) }
+				_id: { $in: restaurants.map((restaurant) => restaurant._id) }
 			}
 		},
 		{ $unwind: '$reviews' },
@@ -59,8 +64,8 @@ export const getRestaurantList = async (page: number, limit: number) => {
 		}
 	]).exec();
 
-	const restaurantList = restaurants.map((restaurant: any) => {
-		const avgRating = rating.find((r: any) => r._id.equals(restaurant._id));
+	const restaurantList = restaurants.map((restaurant) => {
+		const avgRating = rating.find((entry) => entry._id.equals(restaurant._id));
 		return { ...restaurant, avgRating: avgRating?.avgRating || 0 };
 	});
 
@@ -97,16 +102,16 @@ export const updateReview = (
 	commentId: string,
 	comment: IComment
 ) => {
-	const set = Object.keys(comment).reduce((acc, key) => {
+	const set = Object.keys(comment).reduce<Record<string, unknown>>((acc, key) => {
 		acc[`reviews.$[elem].${key}`] = comment[key as keyof IComment];
 		return acc;
-	}, {} as any);
+	}, {});
 	return RestaurantModel.updateOne(
 		{ _id: restaurantId, 'reviews._id': commentId, 'reviews.owner': userId },
 		{
 			$set: set
 		},
-		{ arrayFilters: [{ 'elem._id': commentId, 'elem.owner': userId }], upsert: true }
+		{ arrayFilters: [{ 'elem._id': commentId, 'elem.owner': userId }] }
 	).exec();
 };
 

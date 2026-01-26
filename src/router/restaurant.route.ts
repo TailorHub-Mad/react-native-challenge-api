@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { multerMiddleware } from '../middleware/multer.middleware';
 import {
 	CreateComment,
 	CreateRestaurant,
@@ -18,9 +17,9 @@ router.get('/list', ListRestaurant);
 
 router.get('/detail/:id', GetRestaurant);
 
-router.post('/create', tokenValidation, multerMiddleware.single('image'), CreateRestaurant);
+router.post('/create', tokenValidation, CreateRestaurant);
 
-router.put('/:id', tokenValidation, multerMiddleware.single('image'), UpdateRestaurant);
+router.put('/:id', tokenValidation, UpdateRestaurant);
 
 router.delete('/:id', tokenValidation, DeleteRestaurant);
 

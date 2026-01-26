@@ -1,6 +1,6 @@
-export enum connection {
-	disconnected = 0,
-	connected = 1,
-	connecting = 2,
-	disconnecting = 3
-}
+export const connection: Record<number, string> = {
+	0: 'disconnected',
+	1: 'connected',
+	2: 'connecting',
+	3: 'disconnecting'
+};

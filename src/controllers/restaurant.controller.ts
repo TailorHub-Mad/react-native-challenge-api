@@ -6,17 +6,10 @@ import {
 } from '@validations/restaurant.validation';
 import { Request, Response, NextFunction } from 'express';
 import restaurantService from '../services/restaurant.service';
-import { FileError } from '@errors/file.error';
 import { mongoIdValidation, paginationValidation } from '@validations/common.validation';
 
 export const CreateRestaurant = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const image = req.file?.path;
-
-		if (!image) throw new FileError();
-
-		req.body.image = image;
-
 		await createRestaurantValidation.validateAsync(req.body);
 
 		await restaurantService.createRestaurant(req.user._id, req.body);
@@ -29,13 +22,14 @@ export const CreateRestaurant = async (req: Request, res: Response, next: NextFu
 
 export const ListRestaurant = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { limit, page } = req.query;
-
-		await paginationValidation.validateAsync({ limit, page });
+		const { limit, page } = await paginationValidation.validateAsync(
+			{ limit: req.query.limit, page: req.query.page },
+			{ abortEarly: false, stripUnknown: true }
+		);
 
 		const restaurants = await restaurantService.listRestaurant({
-			limit: Number(limit),
-			page: Number(page)
+			limit,
+			page
 		});
 
 		res.json(restaurants);
@@ -58,10 +52,6 @@ export const GetRestaurant = async (req: Request, res: Response, next: NextFunct
 export const UpdateRestaurant = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		await mongoIdValidation.validateAsync(req.params.id);
-		const image = req.file?.path;
-
-		if (image) req.body.image = image;
-
 		await updateRestaurantValidation.validateAsync(req.body);
 
 		await restaurantService.updateRestaurant(req.user._id, req.params.id, req.body);
