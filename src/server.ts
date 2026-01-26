@@ -5,9 +5,7 @@ import { app } from './app';
 import { PORT } from '@constants/env.constants';
 import * as loaders from './loaders';
 import { MongoConnection } from './loaders/db.loader';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const packageJson = require('../package.json');
+import packageJson from '../package.json';
 
 const processId = process.pid;
 

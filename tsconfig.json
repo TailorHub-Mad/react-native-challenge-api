@@ -15,18 +15,17 @@
     "moduleResolution": "node",
     "paths": {
       "@constants/*": ["./src/constants/*"],
-      "@utils": ["./src/utils"],
+      "@utils/*": ["./src/utils/*"],
       "@log": ["./src/loaders/log.loader"],
       "@errors/*": ["./src/errors/*"],
-      "@models/*": ["./src/models/*"],
+      "@models/*": ["./src/model/*"],
       "@validations/*": ["./src/validations/*"],
-      "@repositories/*": ["./src/repositories/*"],
+      "@repositories/*": ["./src/repository/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@interfaces/*": ["./src/interfaces/*"],
       "@enums/*": ["./src/enums/*"]
     },
-    "types": ["jest", "node"],
-    "typeRoots": ["./node_modules/@types", "src/@types"]
+    "types": ["jest", "node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules","src/test" , "**/*.test.ts", "config"]

@@ -15,10 +15,30 @@ const userSchema = new Schema<IUser>(
 			trim: true,
 			required: true
 		},
+		dni: {
+			type: String,
+			trim: true
+		},
+		birthDate: {
+			type: Date
+		},
+		address: {
+			type: String,
+			trim: true
+		},
 		password: {
 			type: String,
 			trim: true,
 			required: true
+		},
+		favRestaurants: {
+			type: [
+				{
+					type: Schema.Types.ObjectId,
+					ref: 'restaurant'
+				}
+			],
+			default: []
 		}
 	},
 	{

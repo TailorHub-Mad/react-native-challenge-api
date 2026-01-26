@@ -2,9 +2,8 @@ import Joi from 'joi';
 
 export const createRestaurantValidation = Joi.object({
 	name: Joi.string().required(),
-	neighborhood: Joi.string(),
 	address: Joi.string().required(),
-	image: Joi.string().required(),
+	image: Joi.string().uri().required(),
 	description: Joi.string().min(10),
 	latlng: Joi.object({
 		lat: Joi.number().required(),
@@ -14,9 +13,8 @@ export const createRestaurantValidation = Joi.object({
 
 export const updateRestaurantValidation = Joi.object({
 	name: Joi.string(),
-	neighborhood: Joi.string(),
 	address: Joi.string(),
-	image: Joi.string(),
+	image: Joi.string().uri(),
 	description: Joi.string().min(10),
 	latlng: Joi.object({
 		lat: Joi.number(),

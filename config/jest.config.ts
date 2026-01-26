@@ -1,9 +1,11 @@
 import '../src/@types/index.d';
 import { Logger } from 'winston';
 
-global.logger = {} as Logger;
-global.logger.error = jest.fn();
-global.logger.warn = jest.fn();
-global.logger.info = jest.fn();
-global.logger.http = jest.fn();
-global.logger.debug = jest.fn();
+const globalWithLogger = global as typeof globalThis & { logger: Logger };
+
+globalWithLogger.logger = {} as Logger;
+globalWithLogger.logger.error = jest.fn();
+globalWithLogger.logger.warn = jest.fn();
+globalWithLogger.logger.info = jest.fn();
+globalWithLogger.logger.http = jest.fn();
+globalWithLogger.logger.debug = jest.fn();

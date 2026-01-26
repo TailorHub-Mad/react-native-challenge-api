@@ -4,10 +4,13 @@ import { IRestaurantDocument } from './restaurant.interface';
 export interface IUser {
 	email: string;
 	password: string;
-	favRestaurants: IRestaurantDocument['_id'][];
 	name: string;
+	dni?: string;
+	birthDate?: Date;
+	address?: string;
+	favRestaurants?: IRestaurantDocument['_id'][];
 }
 
 export interface IUserDocument extends IUser, Document {
-	checkPassword(password: string): Promise<boolean>;
+	checkPassword(_password: string): Promise<boolean>;
 }
