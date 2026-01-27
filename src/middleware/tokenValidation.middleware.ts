@@ -34,7 +34,7 @@ export const tokenValidation = async (req: Request, _res: Response, next: NextFu
 			}
 			req.user = decoded;
 			next();
-		} catch (error) {
+		} catch {
 			throw new AuthorizationError('Invalid token');
 		}
 	} catch (error) {
