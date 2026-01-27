@@ -1,8 +1,8 @@
-import { IUser, IUserDocument } from '@interfaces/models/user.interface';
+import { IUserDocument } from '@interfaces/models/user.interface';
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUserDocument>(
 	{
 		email: {
 			type: String,
