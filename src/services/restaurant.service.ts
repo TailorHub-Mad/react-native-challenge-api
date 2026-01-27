@@ -62,11 +62,11 @@ const updateComment = async (
 	const matchedCount =
 		'matchedCount' in commentUpdate
 			? commentUpdate.matchedCount
-			: (commentUpdate as { n?: number }).n ?? 0;
+			: ((commentUpdate as { n?: number }).n ?? 0);
 	const modifiedCount =
 		'modifiedCount' in commentUpdate
 			? commentUpdate.modifiedCount
-			: (commentUpdate as { nModified?: number }).nModified ?? 0;
+			: ((commentUpdate as { nModified?: number }).nModified ?? 0);
 
 	if (matchedCount === 0 && modifiedCount === 0) {
 		throw new BaseError('Comment not found', 404);
