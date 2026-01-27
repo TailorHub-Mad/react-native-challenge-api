@@ -89,6 +89,5 @@ export const SECRET_KEY = resolveSecretKey();
 export const S3_REGION = resolveS3Region();
 export const S3_BUCKET = resolveS3Bucket();
 export const S3_UPLOAD_PREFIX = process.env.S3_UPLOAD_PREFIX || 'uploads';
-export const S3_PUBLIC_BASE_URL = process.env.S3_PUBLIC_BASE_URL || '';
 export const S3_URL_EXPIRATION_SECONDS = Number(process.env.S3_URL_EXPIRATION_SECONDS || 900);
 export const S3_MAX_UPLOAD_BYTES = Number(process.env.S3_MAX_UPLOAD_BYTES || 10 * 1024 * 1024);

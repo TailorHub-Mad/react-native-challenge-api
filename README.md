@@ -38,7 +38,6 @@ npm run dev
 | `AWS_REGION` | AWS region (e.g. `eu-west-3`). |
 | `S3_BUCKET` | Bucket for uploads. |
 | `S3_UPLOAD_PREFIX` | Object prefix (default `uploads`). |
-| `S3_PUBLIC_BASE_URL` | Public base URL (optional). |
 | `S3_URL_EXPIRATION_SECONDS` | Presigned URL expiration. |
 | `S3_MAX_UPLOAD_BYTES` | Max allowed size. |
 | `CORS_ORIGINS` | Allowed origins (comma separated). |
@@ -54,12 +53,12 @@ Flow:
      - `sizeBytes`: must be <= `S3_MAX_UPLOAD_BYTES`.
    - The API validates type and size, builds a key under `S3_UPLOAD_PREFIX/YYYY/MM/DD/<uuid>.<ext>`, and returns:
      - `uploadUrl`: time-limited URL for `PUT` to S3.
-     - `publicUrl`: the URL you should persist in your data (uses `S3_PUBLIC_BASE_URL` if set, otherwise the S3 regional URL).
+     - `publicUrl`: the URL you should persist in your data (uses the S3 regional URL).
      - `objectKey`, `expiresIn`, `maxSizeBytes` for reference.
 2. **Upload directly to S3** with a `PUT` request to `uploadUrl` and the same `Content-Type`.
 3. **Save `publicUrl`** in your restaurant create/update payload so the mobile app can render the image.
 
-If you need public access, add a read policy to the bucket or place CloudFront in front and set `S3_PUBLIC_BASE_URL`.
+If you need public access, add a read policy to the bucket or place CloudFront in front.
 
 ## 📚 API Docs
 

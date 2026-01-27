@@ -5,7 +5,6 @@ import { BaseError } from '@errors/base.error';
 import {
 	S3_BUCKET,
 	S3_MAX_UPLOAD_BYTES,
-	S3_PUBLIC_BASE_URL,
 	S3_REGION,
 	S3_UPLOAD_PREFIX,
 	S3_URL_EXPIRATION_SECONDS
@@ -28,13 +27,8 @@ const buildObjectKey = (extension: string): string => {
 	return `${S3_UPLOAD_PREFIX}/${year}/${month}/${day}/${fileId}.${extension}`;
 };
 
-const resolvePublicBaseUrl = (): string => {
-	if (S3_PUBLIC_BASE_URL) {
-		return S3_PUBLIC_BASE_URL.replace(/\/+$/, '');
-	}
-	// Default to the S3 regional public hostname when no CDN base URL is set.
-	return `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com`;
-};
+const resolvePublicBaseUrl = (): string =>
+	`https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com`;
 
 const s3Client = new S3Client({ region: S3_REGION });
 

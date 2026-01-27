@@ -13,7 +13,6 @@ declare global {
 			AWS_DEFAULT_REGION?: string;
 			S3_BUCKET?: string;
 			S3_UPLOAD_PREFIX?: string;
-			S3_PUBLIC_BASE_URL?: string;
 			S3_URL_EXPIRATION_SECONDS?: string;
 			S3_MAX_UPLOAD_BYTES?: string;
 		}
