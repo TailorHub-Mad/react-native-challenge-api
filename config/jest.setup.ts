@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
 
-dotenv.config({
-  path: process.env.DOTENV_CONFIG_PATH || '.env.test',
-  override: true
-});
+if (process.env.DOTENV_CONFIG_PATH) {
+  dotenv.config({
+    path: process.env.DOTENV_CONFIG_PATH,
+    override: true
+  });
+}
 
 const setDefault = (key: string, value: string) => {
   if (!process.env[key]) {

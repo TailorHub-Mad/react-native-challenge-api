@@ -21,7 +21,7 @@ API available at `http://localhost:3001/api`.
 - `yarn serve`: runs `yarn build` and then starts the server in production.
 - `yarn seed:challenge`: inserts test data (admin + restaurants) into the database defined by the environment.
 - `yarn reset:challenge`: deletes data and runs the seed again.
-- `yarn test:coverage`: runs Jest tests and generates a coverage report using `.env.test`.
+- `yarn test:coverage`: runs Jest tests and generates a coverage report.
 - `yarn lint`: runs ESLint across the project (`.ts`).
 - `yarn prettier`: formats `.ts` files in `src/` with Prettier.
 
@@ -32,6 +32,7 @@ API available at `http://localhost:3001/api`.
 | `PORT` | API port (default 3001). |
 | `NODE_ENV` | `development` o `production`. |
 | `DATABASE_URL` | MongoDB URI (remote recommended). |
+| `DATABASE_NAME` | Database name to append if the URI has no db path (default `react-native-challenge-api`). |
 | `DATABASE_URL_FALLBACK` | Local URI if remote is not available. |
 | `SECRET_KEY` | JWT secret. |
 | `AWS_REGION` | AWS region (e.g. `eu-west-3`). |
@@ -124,6 +125,8 @@ If you set `DATABASE_URL` (for example Atlas), the API uses remote; otherwise it
   `AWS_ACCESS_KEY_ID` y `AWS_SECRET_ACCESS_KEY`.
 - In production these are required: `DATABASE_URL`, `SECRET_KEY`, `CORS_ORIGINS`,
   `AWS_REGION`, `S3_BUCKET` (and optionally `S3_PUBLIC_BASE_URL`).
+- If `DATABASE_URL` has no db path, the app appends `DATABASE_NAME` (default
+  `react-native-challenge-api`).
 - Adjust limits with `S3_URL_EXPIRATION_SECONDS` and `S3_MAX_UPLOAD_BYTES`.
 - The Dockerfile only starts the API.
 

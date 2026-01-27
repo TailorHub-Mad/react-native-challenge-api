@@ -5,7 +5,7 @@ services:
       PORT: 3001
       NODE_ENV: development
       DATABASE_URL: ${DATABASE_URL}
-      DATABASE_URL_FALLBACK: ${DATABASE_URL_FALLBACK:-mongodb://mongo:27017/react_native_api_challenge}
+      DATABASE_URL_FALLBACK: ${DATABASE_URL_FALLBACK:-mongodb://mongo:27017/react-native-challenge-api}
       SECRET_KEY: ${SECRET_KEY}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:8081}
       AWS_REGION: ${AWS_REGION}
@@ -23,7 +23,7 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: react_native_api_challenge
+      MONGO_INITDB_DATABASE: react-native-challenge-api
     volumes:
       - mongo_data:/data/db
 

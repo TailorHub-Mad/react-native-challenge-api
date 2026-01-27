@@ -2,6 +2,34 @@ export const PORT = process.env.PORT || 3001;
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+export const DATABASE_NAME = process.env.DATABASE_NAME || 'react-native-challenge-api';
+
+const ensureDatabaseName = (url: string, dbName: string): string => {
+	if (!url || url === 'inmemory') {
+		return url;
+	}
+
+	const schemeIndex = url.indexOf('://');
+	if (schemeIndex === -1) {
+		return url;
+	}
+
+	const pathIndex = url.indexOf('/', schemeIndex + 3);
+	if (pathIndex === -1) {
+		return `${url}/${dbName}`;
+	}
+
+	const queryIndex = url.indexOf('?', pathIndex);
+	const path = url.slice(pathIndex, queryIndex === -1 ? url.length : queryIndex);
+	if (path === '/' || path === '') {
+		const base = url.slice(0, pathIndex);
+		const query = queryIndex === -1 ? '' : url.slice(queryIndex);
+		return `${base}/${dbName}${query}`;
+	}
+
+	return url;
+};
+
 const primaryDatabaseUrl =
 	process.env.DATABASE_URL ||
 	process.env.MONGODB_URI ||
@@ -11,9 +39,13 @@ if (isProduction && !primaryDatabaseUrl) {
 	throw new Error('DATABASE_URL is required in production');
 }
 
-export const DATABASEURL = primaryDatabaseUrl || '';
-export const DATABASE_FALLBACK_URL =
-	process.env.DATABASE_URL_FALLBACK || 'mongodb://127.0.0.1:27017/react_native_api_challenge';
+export const DATABASEURL = primaryDatabaseUrl
+	? ensureDatabaseName(primaryDatabaseUrl, DATABASE_NAME)
+	: '';
+export const DATABASE_FALLBACK_URL = ensureDatabaseName(
+	process.env.DATABASE_URL_FALLBACK || 'mongodb://127.0.0.1:27017/react-native-challenge-api',
+	DATABASE_NAME
+);
 
 export const IV_LENGTH = +process.env.IV_LENGTH;
 export const KEY = process.env.KEY;
@@ -27,7 +59,7 @@ const resolveSecretKey = (): string => {
 	if (isProduction) {
 		throw new Error('SECRET_KEY is required in production');
 	}
-	return 'tailor_hub_technical_review';
+	return 'react-native-challenge-api';
 };
 
 const resolveS3Region = (): string => {

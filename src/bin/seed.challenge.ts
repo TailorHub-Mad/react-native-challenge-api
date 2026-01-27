@@ -4,6 +4,7 @@ import { Types } from 'mongoose';
 import { MongoConnection } from '../loaders/db.loader';
 import { UserModel } from '../model/user.model';
 import { RestaurantModel } from '../model/restaurant.model';
+import { DATABASE_NAME } from '@constants/env.constants';
 
 type ReviewSeed = { name: string; rating: number; comment: string };
 
@@ -131,6 +132,7 @@ export const seedChallengeData = async (): Promise<void> => {
 
 const run = async (): Promise<void> => {
 	await MongoConnection.open();
+	console.info(`Seeding database: ${DATABASE_NAME}`);
 
 	try {
 		await seedChallengeData();

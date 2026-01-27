@@ -1,10 +1,10 @@
 {
-  "name": "tailor_hub_technical_review",
+  "name": "react-native-challenge-api",
   "version": "1.0.0",
   "description": "template back",
   "main": "src/app.ts",
   "scripts": {
-    "test:coverage": "DOTENV_CONFIG_PATH=.env.test NODE_ENV=test jest --config config/jest.json --collectCoverage",
+    "test:coverage": "NODE_ENV=test jest --config config/jest.json --collectCoverage",
     "start": "NODE_ENV=production node -r module-alias/register dist/server.js",
     "dev": "NODE_ENV=development nodemon",
     "dev:prod": "NODE_ENV=production nodemon",
