@@ -5,25 +5,25 @@ Backend service in Node.js/TypeScript oriented to a mobile app. It exposes a RES
 ## 🚀 Quick Start
 
 ```bash
-yarn install
+npm install
 cp .env.template .env
-yarn dev
+npm run dev
 ```
 
-API available at `http://localhost:3001/api`.
+## 🧰 Scripts
 
-## 🧰 Scripts (detail)
-
-- `yarn dev`: starts the server in development with `nodemon` and reloads on changes.
-- `yarn dev:prod`: starts the server with `nodemon` but uses `NODE_ENV=production` (useful to test prod behavior with autoreload).
-- `yarn build`: cleans `dist/` and compiles TypeScript using `tsconfig.prod.json`.
-- `yarn start`: runs the built output in production mode (`NODE_ENV=production`) using `dist/server.js`.
-- `yarn serve`: runs `yarn build` and then starts the server in production.
-- `yarn seed:challenge`: inserts test data (admin + restaurants) into the database defined by the environment.
-- `yarn reset:challenge`: deletes data and runs the seed again.
-- `yarn test:coverage`: runs Jest tests and generates a coverage report.
-- `yarn lint`: runs ESLint across the project (`.ts`).
-- `yarn prettier`: formats `.ts` files in `src/` with Prettier.
+- `npm run dev`: starts the server in development with `nodemon` (`NODE_ENV=development`) and reloads on changes.
+- `npm run dev:prod`: starts the server with `nodemon` but uses `NODE_ENV=production`.
+- `npm run build`: cleans `dist/` and compiles TypeScript using `tsconfig.prod.json`.
+- `npm run start`: runs the built output in production mode (`NODE_ENV=production`) using `dist/server.js`.
+- `npm run serve`: runs the build and then starts the server in production.
+- `npm run seed:challenge`: inserts test data (admin + restaurants) into the database defined by the environment.
+- `npm run reset:challenge`: deletes data and runs the seed again.
+- `npm run test:coverage`: runs Jest tests and generates a coverage report.
+- `npm run lint`: runs ESLint across the project (`.ts`).
+- `npm run prettier`: formats `.ts` files in `src/` with Prettier.
+- `postinstall`: installs Husky Git hooks.
+- `postpublish`: re-enables `pinst` after publishing.
 
 ## 🔧 Environment variables
 
@@ -43,40 +43,23 @@ API available at `http://localhost:3001/api`.
 | `S3_MAX_UPLOAD_BYTES` | Max allowed size. |
 | `CORS_ORIGINS` | Allowed origins (comma separated). |
 
-## 🔐 Auth
-
-- Header: `Authorization: Bearer <token>`.
-- Logout invalidates the token on the server (blacklist).
-- `/auth/verify` validates the current token.
-
 ## ☁️ Uploads (S3 presigned)
 
-1. Request a presigned URL at `POST /api/upload/presign`:
-   - `contentType` (`image/jpeg`, `image/png`, `image/webp`)
-   - `sizeBytes` (<= `S3_MAX_UPLOAD_BYTES`)
-2. Upload the file directly to S3 using `uploadUrl`.
-3. Save `publicUrl` as `image` when creating/updating a restaurant.
+Uploads are performed with S3 presigned URLs so the API never receives the file body. The client asks the API for a short-lived URL, uploads directly to S3, and then stores the resulting `publicUrl` in the restaurant record.
 
-Minimum IAM permissions (API role):
-- `s3:PutObject` en `arn:aws:s3:::<bucket>/<prefix>/*`
-- `s3:AbortMultipartUpload` (opcional)
+Flow:
+1. **Request a presigned URL** with `POST /api/upload/presign` (requires `Authorization: Bearer <token>`).
+   - Body fields:
+     - `contentType`: allowed values are `image/jpeg`, `image/png`, `image/webp`.
+     - `sizeBytes`: must be <= `S3_MAX_UPLOAD_BYTES`.
+   - The API validates type and size, builds a key under `S3_UPLOAD_PREFIX/YYYY/MM/DD/<uuid>.<ext>`, and returns:
+     - `uploadUrl`: time-limited URL for `PUT` to S3.
+     - `publicUrl`: the URL you should persist in your data (uses `S3_PUBLIC_BASE_URL` if set, otherwise the S3 regional URL).
+     - `objectKey`, `expiresIn`, `maxSizeBytes` for reference.
+2. **Upload directly to S3** with a `PUT` request to `uploadUrl` and the same `Content-Type`.
+3. **Save `publicUrl`** in your restaurant create/update payload so the mobile app can render the image.
 
-Example policy:
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["s3:PutObject", "s3:AbortMultipartUpload"],
-      "Resource": "arn:aws:s3:::react-native-api-challenge-uploads-eu-west-3/uploads/*"
-    }
-  ]
-}
-```
-
-If you need public URLs, add a read policy to the bucket or put CloudFront in front and set `S3_PUBLIC_BASE_URL`.
+If you need public access, add a read policy to the bucket or place CloudFront in front and set `S3_PUBLIC_BASE_URL`.
 
 ## 📚 API Docs
 
@@ -119,23 +102,16 @@ docker compose up --build
 
 If you set `DATABASE_URL` (for example Atlas), the API uses remote; otherwise it uses `DATABASE_URL_FALLBACK`.
 
-## 🚀 Deploy AWS
-
-- Use an IAM Role for S3 (no keys in env). If you deploy outside AWS, set
-  `AWS_ACCESS_KEY_ID` y `AWS_SECRET_ACCESS_KEY`.
-- In production these are required: `DATABASE_URL`, `SECRET_KEY`, `CORS_ORIGINS`,
-  `AWS_REGION`, `S3_BUCKET` (and optionally `S3_PUBLIC_BASE_URL`).
-- If `DATABASE_URL` has no db path, the app appends `DATABASE_NAME` (default
-  `react-native-challenge-api`).
-- Adjust limits with `S3_URL_EXPIRATION_SECONDS` and `S3_MAX_UPLOAD_BYTES`.
-- The Dockerfile only starts the API.
-
 ## 🌱 Seed
-
-- `yarn seed:challenge` creates an admin user and 10 restaurants.
-- `yarn reset:challenge` deletes everything and re-seeds.
+- `npm run seed:challenge` creates an admin user and 10 restaurants.
+- `npm run reset:challenge` deletes everything and re-seeds.
 
 ## 🧪 Testing
-1. Start Mongo (docker or local) and set `DATABASE_URL`.
-2. Run `yarn reset:challenge`.
-3. Start the API with `yarn dev` and validate `GET /api/health`.
+1. Install dependencies and ensure `.env` is present if you want custom values.
+2. Run tests with:
+
+```bash
+npm run test:coverage
+```
+
+By default, tests use an in-memory MongoDB instance (`DATABASE_URL=inmemory` via Jest setup). If you prefer a real database, set `DATABASE_URL` (and optionally `DATABASE_URL_FALLBACK`) before running the tests.
