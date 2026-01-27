@@ -27,8 +27,7 @@ const buildObjectKey = (extension: string): string => {
 	return `${S3_UPLOAD_PREFIX}/${year}/${month}/${day}/${fileId}.${extension}`;
 };
 
-const resolvePublicBaseUrl = (): string =>
-	`https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com`;
+const resolvePublicBaseUrl = (): string => `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com`;
 
 const s3Client = new S3Client({ region: S3_REGION });
 
