@@ -5,14 +5,10 @@ import { MongoConnection } from '../loaders/db.loader';
 import { UserModel } from '../model/user.model';
 import { RestaurantModel } from '../model/restaurant.model';
 
-type ReviewSeed = {
-	name: string;
-	rating: number;
-	comment: string;
-};
+type ReviewSeed = { name: string; rating: number; comment: string };
 
 const adminUserSeed = {
-	email: 'admin@tailorhub.local',
+	email: 'admin@tailor-hub.com',
 	name: 'Tailor Admin',
 	password: '1234qweR..',
 	dni: '12345678A',
