@@ -14,6 +14,6 @@ export const mongoIdValidation = Joi.any().external((value) => {
 });
 
 export const paginationValidation = Joi.object({
-	limit: Joi.number().default(4).max(10).min(1).required(),
-	page: Joi.number().default(1).min(1).required()
+	limit: Joi.number().default(4).max(10).min(1),
+	page: Joi.number().default(1).min(1)
 });

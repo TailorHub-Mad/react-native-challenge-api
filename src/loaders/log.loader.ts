@@ -43,12 +43,14 @@ const format = winston.format.combine(
 // 	new winston.transports.File({ filename: 'logs/all.log' })
 // ];
 
+const isTest = process.env.NODE_ENV === 'test';
+
 // Ejecutamos winston
 const logger = winston.createLogger({
 	level: level(),
 	levels,
-	format
-	// transports
+	format,
+	transports: [new winston.transports.Console({ silent: isTest })]
 });
 
 // Lo añadimos en global para poder utilizarlo en toda la aplicación sin tener que importarlo.
